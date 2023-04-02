@@ -32,7 +32,7 @@ FilePath = function(){
 
 
 
-# Function GWAS_ExtractGenes(WD,data,version)
+# Function GWAS_ExtractGenes(version)
 
 > 仅用于处理TESSAL软件生成的GWAS结果文件
 >
@@ -57,16 +57,16 @@ version 1 or 2 「输入数字」
 ## 调用
 
 ```R
-GWAS_ExtractGenes(WD,data,1/2)
+GWAS_ExtractGenes(1 or 2)
 ```
 
 
 
-# Function QTL_ExtractGenes(WD,data,version)
+# Function QTL_ExtractGenes(version)
 
 ## 调用
 
 ```R
-QTL_ExtractGenes(WD,data,1/2)
+QTL_ExtractGenes(1 or 2)
 ```
 
