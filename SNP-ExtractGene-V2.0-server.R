@@ -193,7 +193,7 @@ GWAS_ExtractGenes = function(version){
         #设置输出文件表头
         colnames(gene) = genetitle
         gene[,1]=SNPID
-        gene[,2:6]=chr_snp[2:6]
+        gene[,2:6]=chr_snp[,2:6]
         gene[,7]=Pre_gene
         gene[,8]=Pre_count
         gene[,9]=In_gene
