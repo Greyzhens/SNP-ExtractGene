@@ -15,24 +15,12 @@ library(CMplot)
 #输入变量
 #####
 #文件路径
-WD = ("/Users/ningdongzhen/Desktop/test/ZJJ/out/")  ##此处需要更改
+WD = ("/Users/ningdongzhen/Desktop/test/out/")  ##此处需要更改
 #GWAS结果文件
-data = fread("/Volumes/GrayData/LHD/MLM/out10.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
+data = fread("/Users/ningdongzhen/Desktop/test/5.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
              header = F)
-
-#读取gff文件，已设置为默认值，如有必要请自行修改
-####输入文件合集
-
-
-chrb=c("01","02","03","04","05",
-       "06","07","08","09","10",
-       "11","12","13","14","15",
-       "16","17","18","19","20")
-
-chra = ("/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.")
-chrb = chrb[1]
-chrc = (".txt")
-chrname = paste0(chra,chrb,chrc)
+chra = c("/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.",
+         "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.")
 
 #封装函数
 
@@ -52,7 +40,7 @@ FilePath = function(){
 }
 
 
-#主程序
+#函数 GWAS_ExtractGenes GWAS结果文件提取
 GWAS_ExtractGenes = function(version){
   
   FilePath()
@@ -64,40 +52,40 @@ GWAS_ExtractGenes = function(version){
   traitcount = length(traitname)
   traitnum = 1
   for (traitnum in 1:traitcount) {
-    phenotype_name=head(trait, n = 1)[, -1]
-    phenotype_name = unlist(phenotype_name)
     #提取表头
     datahead = data[1,]
     datahead = unlist(datahead)
     #按ID提取
-    phenotype = data[grep(phenotype_name[traitnum], data$V1),]
+    phenotype = data[grep(traitname[traitnum], data$V1),]
+    #MLM模型第一行为空，因此需要删除
     phenotype = phenotype[-1,]
     #更改列名
     colnames(phenotype)=datahead
+    
     #输出文件 phenotype
-    Yann = paste0("Successfully extracted ",phenotype_name[traitnum], ". Progress ", traitnum, "/", traitcount)
+    #输出提示
+    Yann = paste0("Successfully extracted ",traitname[traitnum], ". Progress ", traitnum, "/", traitcount)
     print(Yann)
     #构建输出文件
+    #phenotype_out 输出文件 包含R方
     phenotype_out=phenotype[,c(2,3,4,7,15)]
-    fwrite(phenotype_out,file=paste0(phenotype_name[traitnum],".csv"), sep = ",")
-    grayzhens = paste0(phenotype_name[traitnum],".csv has been completed.")
+    fwrite(phenotype_out,file=paste0(traitname[traitnum],".csv"), sep = ",")
+    grayzhens = paste0(traitname[traitnum],".csv has been completed.")
     print(grayzhens)
-    #返回全局
-    trait_chr = phenotype[,c(2,3,4,7)]
+    #CMplot输入文件
+    trait_chr = phenotype_out
     trait_chr$p = as.numeric(trait_chr$p)
     trait_chr$Pos = as.numeric(trait_chr$Pos)
     trait_chr = trait_chr[!grepl("NaN", trait_chr$p), ]
-    trait_chr <<- trait_chr
-    trait_name <<- phenotype_name[traitnum]
-    traitnum = traitnum + 1
-    traitnum <<- traitnum
     
+    trait_name = traitname[traitnum]
+    traitnum = traitnum + 1
       
-    chrnum <<- 1
-    greyzhens <<- 1
+    chrnum = 1
+    greyzhens = 1
     for (chrnum in 1:20) {#20
-      Yann = paste("S", chrnum,"_", sep = "")
-      chr = trait_chr[grepl(Yann, trait_chr$Marker), ]
+      Yann2 = paste("S", chrnum,"_", sep = "")
+      chr = trait_chr[grepl(Yann2, trait_chr$Marker), ]
       chr = as.data.frame(chr)
       alpha = -log10(as.numeric(chr$p))
       alpha = format(alpha, scientific = FALSE)
@@ -112,80 +100,113 @@ GWAS_ExtractGenes = function(version){
         print(grayzhens)
         grayzhens = paste0(trait_name," chr process ",chrnum," /20")
         print(grayzhens)
-        greyzhens <<- greyzhens + 1
-        chr_snp <<- chr
-        snpcount <<- nrow(chr_snp) 
-        snpnum <<- 1
+        greyzhens = greyzhens + 1
+        chr_snp = chr
+        snpcount = nrow(chr_snp) 
+        snpnum = 1
         #构建输出的三列基因
-        In_gene <<- c(1:snpcount)
-        Pre_gene <<- c(1:snpcount)
-        Post_gene <<- c(1:snpcount)
+        SNPID = c(1:snpcount)
+        In_gene = c(1:snpcount)
+        Pre_gene = c(1:snpcount)
+        Pre_count = c(1:snpcount)
+        Post_gene = c(1:snpcount)
+        Post_count = c(1:snpcount)
+        
         for (snpnum in 1:snpcount) {
           #chr_gff
-          chr_gff = fread(chrall[chrnum])
+          chrb=c("01","02","03","04","05",
+                 "06","07","08","09","10",
+                 "11","12","13","14","15",
+                 "16","17","18","19","20")
+          chrb = chrb[chrnum]
+          chrc = (".txt")
+          chrname = paste0(chra[version],chrb,chrc)
+          
+          
+          chr_gff = fread(chrname)
           gfftitle = c("chr","maker","type","startpos","endpos","1","2","3","genename")
           colnames(chr_gff) = gfftitle
+          
+          
           
           gffcount = nrow(chr_gff)
           gffnum = 1
           for (gffnum in 1:gffcount) {
             if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum]) {
               #在最前端 只有Post_gene
-              Post_gene[snpnum] <<- chr_gff$genename[gffnum]
+              Post_gene[snpnum] = chr_gff$genename[gffnum]
+              Post_count[snpnum] = chr_gff$startpos[gffnum] - chr_snp$Pos[snpnum]
+              SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
+              
               break
             }else{
               if (chr_snp$Pos[snpnum] <= chr_gff$endpos[gffnum]) {
                 #基因内
-                In_gene[snpnum] <<- chr_gff$genename[gffnum]
+                In_gene[snpnum] = chr_gff$genename[gffnum]
+                SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
+                
                 break
               }else{
                 if (gffnum != gffcount) {
                   if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum+1]) {#1
                     #基因间
-                    Pre_gene[snpnum] <<- chr_gff$genename[gffnum]
-                    Post_gene[snpnum] <<- chr_gff$genename[gffnum+1]
+                    Pre_gene[snpnum] = chr_gff$genename[gffnum]
+                    Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
+                    Post_gene[snpnum] = chr_gff$genename[gffnum+1]
+                    Post_count[snpnum] = chr_gff$startpos[gffnum+1] - chr_snp$Pos[snpnum]
+                    SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
+                    
                     break
                   }else{#1
                     gffnum = gffnum + 1
                   }
                 }else{
                   #在最后端 只有Pre_gene
-                  Pre_gene[snpnum] <<- chr_gff$genename[gffnum]
+                  Pre_gene[snpnum] = chr_gff$genename[gffnum]
+                  Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
+                  SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
+                  
                   break
                 }
               }
             }
           }
-          Yann = paste(trait_name," Chr",chrnum," SNP process ",snpnum ,"/",snpcount , sep = "")
-          print(Yann)
+          Yann3 = paste(trait_name," Chr",chrnum," SNP process ",snpnum ,"/",snpcount , sep = "")
+          print(Yann3)
           snpnum = snpnum + 1
         }
         
         #文件
-        gene = data.frame(matrix(nrow = snpcount, ncol = 8))
+        gene = data.frame(matrix(nrow = snpcount, ncol = 11))
         #构建输出文件表头
         genetitle = c("SNPID",
                       "Chr",
                       "pos",
                       "p",
+                      "MarkerR2",
                       "alpha",
-                      "PrevGene",
+                      "PreGene",
+                      "PreCount",
                       "InGene",
-                      "NextGene")
+                      "PostGene",
+                      "PostCount")
         #设置输出文件表头
         colnames(gene) = genetitle
-        gene[,1:5]=chr_snp
-        gene[,6]=Pre_gene
-        gene[,7]=In_gene
-        gene[,8]=Post_gene
-        yann = chrnum
-        grayzhens=paste(trait_name, "_Chr", yann , sep = "")
+        gene[,1]=SNPID
+        gene[,2:6]=chr_snp
+        gene[,7]=Pre_gene
+        gene[,8]=Pre_count
+        gene[,9]=In_gene
+        gene[,10]=Post_gene
+        gene[,11]=Post_count
+        yann4 = chrnum
+        grayzhens=paste(trait_name, "_Chr", yann4 , sep = "")
         fwrite(gene, file = paste0(grayzhens, "_SNP_gene.csv"), sep = ",")
-        Yann = paste(grayzhens , "_SNP_gene.csv has been completed. Summary ",snpcount , sep = "")
-        print(Yann)
+        Yann5 = paste(grayzhens , "_SNP_gene.csv has been completed. Summary ",snpcount , sep = "")
+        print(Yann5)
         chrnum = chrnum + 1
       }else{
-        grayzhens = paste0(trait_name,"_Chr",chrnum," has no significant loci and has been skipped.")
+        grayzhens = paste0(trait_name,"_Chr",chrnum," has no significant loci and has been skipped. ",chrnum,"/20")
         print(grayzhens)
         chrnum = chrnum + 1
       }
@@ -193,7 +214,7 @@ GWAS_ExtractGenes = function(version){
     if (greyzhens != 1) {
       ####CMplot
       #输入
-      dataCM = trait_chr
+      dataCM = trait_chr[,1:4]
       #绘图
       CMplot(dataCM, 
              plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
@@ -213,8 +234,8 @@ GWAS_ExtractGenes = function(version){
              dpi=2000,#输出图片的大小
              file.output=TRUE,
              verbose=TRUE)
-      Yann = paste(trait_name,"'s plot has been completed.",sep = "")
-      print(Yann)
+      Yann6 = paste(trait_name,"'s plot has been completed.",sep = "")
+      print(Yann6)
     }else{
       yann = paste0(trait_name," has no significant loci. ","Skipped. ")
       print(yann)
@@ -222,3 +243,4 @@ GWAS_ExtractGenes = function(version){
   }
 }
 
+GWAS_ExtractGenes(2)

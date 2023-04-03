@@ -15,36 +15,36 @@ library(CMplot)
 #输入变量
 #####
 #文件路径
-WD = ("/Users/ningdongzhen/Desktop/test/Ca4MLM/T/")  ##此处需要更改
+WD = ("/Users/ningdongzhen/Desktop/test/T/")  ##此处需要更改
 #表型文件
 trait = fread("/Users/ningdongzhen/Desktop/test/Calcaim-trait.txt",#此处为表型文件，需使用绝对路径 ##此处需要更改
               header = F)
 #GWAS结果文件
-data = fread("/Users/ningdongzhen/Desktop/test/Ca4MLM/5.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
+data = fread("/Users/ningdongzhen/Desktop/test/5.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
              header = F)
 
 #读取gff文件，已设置为默认值，如有必要请自行修改
 ####输入文件合集
-chrall = c("/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.01.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.02.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.03.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.04.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.05.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.06.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.07.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.08.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.09.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.10.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.11.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.12.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.13.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.14.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.15.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.16.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.17.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.18.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.19.txt",
-           "/Users/ningdongzhen/Desktop/test/gff/arahy.Tifrunner.gnm2.Arahy.20.txt")
+chrall = c("/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.01.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.02.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.03.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.04.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.05.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.06.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.07.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.08.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.09.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.10.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.11.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.12.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.13.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.14.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.15.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.16.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.17.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.18.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.19.txt",
+           "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.20.txt")
 
 
 #封装函数
