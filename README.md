@@ -1,5 +1,6 @@
 # SNP-ExtractGene
 一个利用SNP从注释文件中提取基因的小工具
+
 请查看 ==<u>**/SNP-ExtractGene/SNP-ExtractGene-V1.0.R**</u>==
 
 ## GWAS结果文件
@@ -15,6 +16,8 @@
 ### 3 结果文件处理
 
 本工具
+
+目前已更新到第三个版本，升级公告请移步**<u>==SEG_README.md==</u>**
 
 ## QTL结果文件
 

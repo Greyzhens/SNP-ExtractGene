@@ -50,9 +50,7 @@ version 1 or 2 「输入数字」
 
 ## 脚本
 
-```R
-
-```
+请查看SNP-ExtractGene-V3.0.R
 
 ## 调用
 
@@ -70,3 +68,20 @@ GWAS_ExtractGenes(1 or 2)
 QTL_ExtractGenes(1 or 2)
 ```
 
+# Update
+
+V0 该版本为分切版本，并未整合为一个文件，因此不上线此版本
+
+V1 该版本首次将所有分析步骤合并为一个文件，但各个函数彼此独立存在。
+
+V2 该版本将第一版所有函数整合为一个函数即GWAS_ExtractGenes()
+
+V3 该版本升级了将所有输出语句输入output.txt中，但运行时无任何提醒
+
+# 推荐
+
+个人pc推荐使用第二版
+
+服务器推荐使用第三版
+
+服务器使用时，需要将文件路径改好，打包为xx.R，随后使用conda activate GWAS/conda activate CMplot环境中 使用 Rscript xx.R运行文件。
