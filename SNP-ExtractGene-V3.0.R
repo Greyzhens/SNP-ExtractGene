@@ -43,9 +43,9 @@ FilePath = function(){
 
 #函数 GWAS_ExtractGenes GWAS结果文件提取
 GWAS_ExtractGenes = function(version){
-  
+
   FilePath()
-  
+
   #traitname
   traitname = data$V1
   traitname = unique(traitname)[-1]
@@ -122,14 +122,16 @@ GWAS_ExtractGenes = function(version){
           chrb = chrb[chrnum]
           chrc = (".txt")
           chrname = paste0(chra[version],chrb,chrc)
-          
-          
+
+
+​          
           chr_gff = fread(chrname)
           gfftitle = c("chr","maker","type","startpos","endpos","1","2","3","genename")
           colnames(chr_gff) = gfftitle
-          
-          
-          
+
+
+​          
+​          
           gffcount = nrow(chr_gff)
           gffnum = 1
           for (gffnum in 1:gffcount) {
