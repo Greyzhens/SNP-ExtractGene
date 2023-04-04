@@ -19,8 +19,8 @@ WD = ("/data0/fzliu/ZY/result")  ##此处需要更改
 #GWAS结果文件
 data = fread("/data0/fzliu/ZY/MLM6.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
              header = F)
-chra = c("/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.",
-         "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.")
+chra = c("/data0/fzliu/DB/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.",
+         "/data0/fzliu/DB/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.")
 #执行过程保存
 sink("output.txt")
 #封装函数
