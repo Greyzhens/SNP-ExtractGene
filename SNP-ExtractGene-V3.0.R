@@ -1,5 +1,5 @@
 #仅用于处理TESSAL软件生成的GWAS结果文件
-#仅适用于提取 花生(Arachis hypogaea) 二代测序的基因数据
+#仅适用于提取 花生(Arachis hypogaea) 一、二代测序的基因数据
 #输出文件包括：单表型结果文件(包含snpID，chr，pos，p，alpha)，表型-染色体-显著性位点-基因文件，表型的曼哈顿图，表型的QQ图
 #作者：Grayzhens CandyYanns
 
