@@ -78,10 +78,27 @@ V2 该版本将第一版所有函数整合为一个函数即GWAS_ExtractGenes()
 
 V3 该版本升级了将所有输出语句输入output.txt中，但运行时无任何提醒
 
+V4 该版本属于V2的升级版，修复了结果文件中 1，2，3占位的问题，现使用空值代替。将绘图部分单独设置为一个函数，dataCM为输入数据名称，filename为输出文件名称
+
 # 推荐
 
-个人pc推荐使用第二版
+个人pc推荐使用第四版
 
-服务器推荐使用第三版
+服务器推荐使用第四版
 
-服务器使用时，需要将文件路径改好，打包为xx.R，随后使用conda activate GWAS/conda activate CMplot环境中 使用 Rscript xx.R运行文件。
+服务器使用时，需要将文件路径改好，打包为xx.R，上传至服务器
+
+随后使用下方代码进入绘图环境
+
+```shell
+conda activate GWAS
+或
+conda activate CMplot
+```
+
+在环境中，使用下方代码运行文件。（注意文件绝对路径）
+
+```shell
+ Rscript xx.R
+```
+
