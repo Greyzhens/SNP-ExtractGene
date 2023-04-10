@@ -1,5 +1,5 @@
 #仅用于处理TESSAL软件生成的GWAS结果文件
-#仅适用于提取 花生(Arachis hypogaea) 二代测序的基因数据
+#仅适用于提取 花生(Arachis hypogaea) 一、二代测序的基因数据
 #输出文件包括：单表型结果文件(包含snpID，chr，pos，p，alpha)，表型-染色体-显著性位点-基因文件，表型的曼哈顿图，表型的QQ图
 #作者：Grayzhens CandyYanns
 
@@ -15,13 +15,14 @@ library(CMplot)
 #输入变量
 #####
 #文件路径
-WD = ("/Users/ningdongzhen/Desktop/Calcium")  ##此处需要更改
+WD = ("/data0/fzliu/ZY/result")  ##此处需要更改
 #GWAS结果文件
-data = fread("/Users/ningdongzhen/Desktop/CaMLM.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
+data = fread("/data0/fzliu/ZY/MLM6.txt",#此处为结果文件，需使用绝对路径 ##此处需要更改
              header = F)
-chra = c("/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.",
-         "/Users/ningdongzhen/Desktop/Github/SNP-ExtractGene/GFF/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.")
-
+chra = c("/data0/fzliu/DB/gnm1.ann1.CCJH/arahy.Tifrunner.gnm1.Arahy.",
+         "/data0/fzliu/DB/gnm2.ann1.4K0L/arahy.Tifrunner.gnm2.Arahy.")
+#执行过程保存
+#sink("output.txt")
 #封装函数
 
 #####
@@ -42,9 +43,9 @@ FilePath = function(){
 
 #函数 GWAS_ExtractGenes GWAS结果文件提取
 GWAS_ExtractGenes = function(version){
-  
+
   FilePath()
-  
+
   #traitname
   traitname = data$V1
   traitname = unique(traitname)[-1]
@@ -67,7 +68,7 @@ GWAS_ExtractGenes = function(version){
     Yann = paste0("Successfully extracted ",traitname[traitnum], ". Progress ", traitnum, "/", traitcount)
     print(Yann)
     #构建输出文件
-    #phenotype_out 输出文件 包含R方
+    #phenotype_out 输出文件 包含R方 1-20全部
     phenotype_out=phenotype[,c(2,3,4,7,15)]
     fwrite(phenotype_out,file=paste0(traitname[traitnum],".csv"), sep = ",")
     grayzhens = paste0(traitname[traitnum],".csv has been completed.")
@@ -94,20 +95,6 @@ GWAS_ExtractGenes = function(version){
       #只提取(6,12)
       chr = subset(chr, alpha >= 6 & alpha <= 12)
       chr$Pos=as.numeric(chr$Pos)
-      fwrite(chr,file=paste0(traitname[traitnum],"-Chr",chrnum,".csv"), sep = ",")
-      
-      #chr_gff
-      chrb=c("01","02","03","04","05",
-             "06","07","08","09","10",
-             "11","12","13","14","15",
-             "16","17","18","19","20")
-      chrb = chrb[chrnum]
-      chrc = (".txt")
-      chrname = paste0(chra[version],chrb,chrc)
-      
-      chr_gff = fread(chrname)
-      gfftitle = c("chr","maker","type","startpos","endpos","1","2","3","genename")
-      colnames(chr_gff) = gfftitle
       
       if (nrow(chr) != 0) {#有显著性位点则输出提示
         grayzhens = paste0(trait_name,"'s ","highly significant loci on " ,"Chr ",chrnum," have been extracted.")
@@ -117,6 +104,11 @@ GWAS_ExtractGenes = function(version){
         greyzhens = greyzhens + 1
         chr_snp = chr
         snpcount = nrow(chr_snp) 
+        
+        dataCM = chr_snp
+        filename = paste0(trait_name,"-Chr",chrnum)
+        manhattan()
+        
         snpnum = 1
         #构建输出的三列基因
         SNPID = c(1:snpcount)
@@ -127,22 +119,41 @@ GWAS_ExtractGenes = function(version){
         Post_count = c(1:snpcount)
         
         for (snpnum in 1:snpcount) {
+          #chr_gff
+          chrb=c("01","02","03","04","05",
+                 "06","07","08","09","10",
+                 "11","12","13","14","15",
+                 "16","17","18","19","20")
+          chrb = chrb[chrnum]
+          chrc = (".txt")
+          chrname = paste0(chra[version],chrb,chrc)
+
+          chr_gff = fread(chrname)
+          gfftitle = c("chr","maker","type","startpos","endpos","1","2","3","genename")
+          colnames(chr_gff) = gfftitle
 
           gffcount = nrow(chr_gff)
           gffnum = 1
           for (gffnum in 1:gffcount) {
             if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum]) {
               #在最前端 只有Post_gene
+              Pre_gene[snpnum] = ""
+              Pre_count[snpnum] = ""
+              In_gene[snpnum] = ""
               Post_gene[snpnum] = chr_gff$genename[gffnum]
               Post_count[snpnum] = chr_gff$startpos[gffnum] - chr_snp$Pos[snpnum]
-              SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum],"-V",version,"-Gff",chrb)
+              SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
               
               break
             }else{
               if (chr_snp$Pos[snpnum] <= chr_gff$endpos[gffnum]) {
                 #基因内
+                Pre_gene[snpnum] = ""
+                Pre_count[snpnum] = ""
                 In_gene[snpnum] = chr_gff$genename[gffnum]
-                SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum],"-V",version,"-Gff",chrb)
+                Post_gene[snpnum] = ""
+                Post_count[snpnum] = ""
+                SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
                 
                 break
               }else{
@@ -151,9 +162,10 @@ GWAS_ExtractGenes = function(version){
                     #基因间
                     Pre_gene[snpnum] = chr_gff$genename[gffnum]
                     Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
+                    In_gene[snpnum] = ""
                     Post_gene[snpnum] = chr_gff$genename[gffnum+1]
                     Post_count[snpnum] = chr_gff$startpos[gffnum+1] - chr_snp$Pos[snpnum]
-                    SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum],"-V",version,"-Gff",chrb)
+                    SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
                     
                     break
                   }else{#1
@@ -163,7 +175,10 @@ GWAS_ExtractGenes = function(version){
                   #在最后端 只有Pre_gene
                   Pre_gene[snpnum] = chr_gff$genename[gffnum]
                   Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
-                  SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum],"-V",version,"-Gff",chrb)
+                  In_gene[snpnum] = ""
+                  Post_gene[snpnum] = ""
+                  Post_count[snpnum] = ""
+                  SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
                   
                   break
                 }
@@ -214,25 +229,8 @@ GWAS_ExtractGenes = function(version){
       ####CMplot
       #输入
       dataCM = trait_chr[,1:4]
-      #绘图
-      CMplot(dataCM, 
-             plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
-             LOG10=TRUE, 
-             ylim=c(0,12),#这里限制y轴上限
-             threshold=c(1e-6,1e-8),#设置标准线 6 和 8
-             threshold.lty=c(1,2),
-             threshold.lwd=c(1,1), 
-             threshold.col=c("black","grey"), 
-             amplify=F,bin.size=1e6,
-             chr.den.col=c("darkgreen", "yellow","red"),
-             signal.col=c("red","green"),
-             signal.cex=c(1,1),
-             signal.pch=c(19,19),
-             file="jpg",#输出图片的格式
-             memo=trait_name,
-             dpi=2000,#输出图片的大小
-             file.output=TRUE,
-             verbose=TRUE)
+      filename = trait_name
+      Manhattan()
       Yann6 = paste(trait_name,"'s plot has been completed.",sep = "")
       print(Yann6)
     }else{
@@ -242,4 +240,26 @@ GWAS_ExtractGenes = function(version){
   }
 }
 
+Manhattan = function(data,filename){
+  CMplot(dataCM, 
+         plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
+         LOG10=TRUE, 
+         ylim=c(0,12),#这里限制y轴上限
+         threshold=c(1e-6,1e-8),#设置标准线 6 和 8
+         threshold.lty=c(1,2),
+         threshold.lwd=c(1,1), 
+         threshold.col=c("black","grey"), 
+         amplify=F,bin.size=1e6,
+         chr.den.col=c("darkgreen", "yellow","red"),
+         signal.col=c("red","green"),
+         signal.cex=c(1,1),
+         signal.pch=c(19,19),
+         file="jpg",#输出图片的格式
+         memo=filename,
+         dpi=2000,#输出图片的大小
+         file.output=TRUE,
+         verbose=TRUE)
+}
+
 GWAS_ExtractGenes(2)
+#sink()
