@@ -1,7 +1,7 @@
 # SNP-ExtractGene
 一个利用SNP从注释文件中提取基因的小工具
 
-请查看 /SNP-ExtractGene/SNP-ExtractGene-V2.0.R
+请查看 /SNP-ExtractGene/SNP-ExtractGene-V4.2.R
 
 ## GWAS结果文件
 
