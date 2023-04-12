@@ -91,6 +91,13 @@ V4 该版本属于V2的升级版，修复了结果文件中 1，2，3占位的�
 随后使用下方代码进入绘图环境
 
 ```shell
+cd /data0/fzliu/miniconda3/bin
+source activate base
+```
+
+然后下方二选一
+
+```shell
 conda activate GWAS
 或
 conda activate CMplot
