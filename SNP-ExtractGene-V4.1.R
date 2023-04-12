@@ -40,7 +40,7 @@ FilePath = function(){
   setwd(WD)
 }
 
-Manhattan = function(data,filename){
+Manhattan = function(){
   CMplot(dataCM, 
          plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
          LOG10=TRUE, 
@@ -124,9 +124,8 @@ GWAS_ExtractGenes = function(version){
         greyzhens = greyzhens + 1
         chr_snp = chr
         snpcount = nrow(chr_snp) 
-        
-        dataCM = chr_snp
-        filename = paste0(trait_name,"-Chr",chrnum)
+        dataCM <- chr_snp
+        filename <- paste0(trait_name,"-Chr",chrnum)
         Manhattan()
         
         snpnum = 1
@@ -248,8 +247,8 @@ GWAS_ExtractGenes = function(version){
     if (greyzhens != 1) {
       ####CMplot
       #输入
-      dataCM = trait_chr[,1:4]
-      filename = trait_name
+      dataCM <- trait_chr[,1:4]
+      filename <- trait_name
       Manhattan()
       Yann6 = paste(trait_name,"'s plot has been completed.",sep = "")
       print(Yann6)
