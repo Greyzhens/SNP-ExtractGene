@@ -24,8 +24,8 @@ data = fread("/Volumes/Cornucopia/Project/主线任务/GWAS/CaMLM9.txt",#此处�
 gff_gnm = c("/Volumes/Cornucopia/DataBase/GFF3/gnm1.ann1.CCJH/gnm1.ann1.CCJH.gene_models_main.gff3",
             "/Volumes/Cornucopia/DataBase/GFF3/gnm2.ann1.4K0L/gnm2.ann1.4K0L.gene_models_main.gff3")
 
+hapmap = fread("/Volumes/Cornucopia/DataBase/272--GWAS群体/all.snp.1781835.W272.hmp.txt" , header = T)
 
-#封装函数
 
 #####
 #函数 FilePath 创建文件夹
@@ -44,9 +44,9 @@ FilePath = function(){
 
 #函数 GWAS_ExtractGenes GWAS结果文件提取
 GWAS_ExtractGenes = function(version){
-
+  
   FilePath()
-
+  
   #traitname
   traitname = data$V1
   traitname = unique(traitname)[-1]
@@ -175,7 +175,12 @@ GWAS_ExtractGenes = function(version){
         Post_note = c(1:snpcount)
         Post_count = c(1:snpcount)
         
+        genetic_typing_out = data.frame(matrix(nrow = snpcount, ncol = 282))
+        gtitle = colnames(hapmap)
+        colnames(genetic_typing_out) = gtitle
+        
         for (snpnum in 1:snpcount) {
+          
           gffnum = 1
           for (gffnum in 1:gffcount) {
             if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum]) {
@@ -258,7 +263,24 @@ GWAS_ExtractGenes = function(version){
           }
           Yann3 = paste(trait_name," Chr",chrnum," SNP process ",snpnum ,"/",snpcount , sep = "")
           print(Yann3)
-          snpnum = snpnum + 1
+          
+          #基因分型
+          Gray = paste0("S",chrnum,"_",chr_snp$Pos[snpnum])
+          lengthhapmap = nrow(hapmap)
+          genetic_typing = hapmap[grepl(Gray,hapmap$`rs#`),]
+          hapmapnum = 1
+          colhapmap = ncol(hapmap)
+          for (x in 1:lengthhapmap) {
+            if (Gray == hapmap$`rs#`[hapmapnum]) {
+              genetic_typing = hapmap[hapmapnum,1:colhapmap]
+              break
+            }else{
+              hapmapnum = hapmapnum + 1
+            }
+          }
+          
+          genetic_typing_out[snpnum] = genetic_typing
+          
         }
         
         #文件
@@ -294,11 +316,18 @@ GWAS_ExtractGenes = function(version){
         gene[,13]=Post_note
         gene[,14]=Post_count
         
+        
+        gene = cbind(gene,genetic_typing_out)
+        
         yann4 = chrnum
         grayzhens=paste(trait_name, "_Chr", yann4 , sep = "")
         fwrite(gene, file = paste0(grayzhens, "_SNP_gene.csv"), sep = ",")
         Yann5 = paste(grayzhens , "_SNP_gene.csv has been completed. Summary ",snpcount , sep = "")
         print(Yann5)
+        
+        
+        
+        
         chrnum = chrnum + 1
       }else{
         grayzhens = paste0(trait_name,"_Chr",chrnum," has no significant loci and has been skipped. ",chrnum,"/20")
