@@ -16,7 +16,7 @@ library(CMplot)
 #输入变量
 #####
 # 提示用户输入文件的完整路径
-file_path <- "G:/学术/研究项目/花生荚果籽仁耐低钙相关基因定位研究/GWAS/结果/GP/GWAS结果/GP-3/CMLM/CaGP-CMLM5.txt"
+file_path <- "G:/学术/研究项目/花生荚果籽仁耐低钙相关基因定位研究/GWAS/结果/GP/GWAS结果/GP-3/GML/CaGP-GML1.txt"
 
 # 读取用户输入的文件路径中的数据
 data <- fread(file_path, header = FALSE)
