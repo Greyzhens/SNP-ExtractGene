@@ -85,7 +85,7 @@ GWAS_ExtractGenes = function(version){
     print(Yann)
     #构建输出文件
     #phenotype_out 输出文件 包含R方 1-20全部
-    phenotype_out=phenotype[,c(2,3,4,7,15)]
+    phenotype_out=phenotype[,c(2,3,4,6,7)]
     fwrite(phenotype_out,file=paste0(traitname[traitnum],".csv"), sep = ",")
     grayzhens = paste0(traitname[traitnum],".csv has been completed.")
     print(grayzhens)
