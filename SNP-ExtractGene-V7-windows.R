@@ -16,8 +16,7 @@ library(CMplot)
 #输入变量
 #####
 # 提示用户输入文件的完整路径
-cat("请输入包含GWAS结果文件的完整路径：")
-file_path <- ""
+file_path <- "G:/学术/研究项目/花生荚果籽仁耐低钙相关基因定位研究/GWAS/结果/GP/GWAS结果/GP-3/MLM/CaGP-MLM5.txt"
 
 # 读取用户输入的文件路径中的数据
 data <- fread(file_path, header = FALSE)
@@ -37,7 +36,7 @@ data=data2
 gff_gnm = c("G:/学术/资源库/PeanutBaseData/GFF3/gnm1.ann1.CCJH/gnm1.ann1.CCJH.gene_models_main.gff3",
             "G:/学术/资源库/PeanutBaseData/GFF3/gnm2.ann1.4K0L/gnm2.ann1.4K0L.gene_models_main.gff3")
 
-hapmap = fread("G:/学术/资源库/自然群体/1781835-SNP/hapmap/all.snp.1781835.W272.hmp.txt" , header = T)
+hapmap = fread("G:/学术/资源库/自然群体/1781835-SNP/all.snp.1781835.W272.hmp.txt" , header = T)
 
 
 #####
@@ -114,10 +113,11 @@ GWAS_ExtractGenes = function(version){
       alpha = format(alpha, scientific = FALSE)
       alpha = as.numeric(alpha)
       chr = cbind(chr, alpha)
-      #只提取(5,12)
+      #只提取(5,12)区间内的值
       chr = subset(chr, alpha >= 5 & alpha <= 12)
       chr$Pos=as.numeric(chr$Pos)
-      
+      chr = na.omit(chr)
+
       #构建gff文件
       if (chrnum < 10) {
         Yannnn = paste("arahy.Tifrunner.gnm",version,".Arahy.0", chrnum, sep = "")
@@ -155,6 +155,7 @@ GWAS_ExtractGenes = function(version){
         print(grayzhens)
         greyzhens = greyzhens + 1
         chr_snp = chr
+        fwrite(chr_snp,"chr_snp.csv")
         snpcount = nrow(chr_snp) 
         
         filename = paste0(trait_name,"-Chr",chrnum)
