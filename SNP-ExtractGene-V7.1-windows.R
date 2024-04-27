@@ -103,6 +103,8 @@ GWAS_ExtractGenes = function(version){
     
     # 4. 提取第1000行的值
     result <- sorted_values[1000]
+
+    y_threshold = 2.806096e-8
     
     # 判断 result 的值
     if (result <= 3) {
