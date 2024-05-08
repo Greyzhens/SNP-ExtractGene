@@ -16,7 +16,7 @@ library(CMplot)
 #输入变量
 #####
 # 提示用户输入文件的完整路径
-file_path <- "G:/学术/研究项目/花生荚果籽仁耐低钙相关基因定位研究/GWAS/结果/GP/GWAS结果/GP-3/MLM/CaGP-MLM5.txt"
+file_path <- "G:/Zy/GWAS/GP-3/MLM_1000/CaGP-MLM5.txt"
 
 # 读取用户输入的文件路径中的数据
 data <- fread(file_path, header = FALSE)
@@ -187,6 +187,26 @@ GWAS_ExtractGenes = function(version){
         
         filename = paste0(trait_name,"-Chr",chrnum)
         
+        ##单染色体绘图##
+        CMplot(dataCM, 
+               plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
+               LOG10=TRUE, 
+               ylim=c(0,12),#这里限制y轴上限
+               threshold=c(x_threshold,y_threshold),#设置标准线 6 和 8
+               threshold.lty=c(1,2),
+               threshold.lwd=c(1,1), 
+               threshold.col=c("black","grey"), 
+               amplify=F,bin.size=1e6,
+               chr.den.col=c("darkgreen", "yellow","red"),
+               signal.col=c("red","green"),
+               signal.cex=c(1,1),
+               signal.pch=c(19,19),
+               file="jpg",#输出图片的格式
+               file.name=filename,
+               dpi=2000,#输出图片的大小
+               file.output=TRUE,
+               verbose=TRUE)
+
         snpnum = 1
         #构建输出的三列基因
         SNPID = c(1:snpcount)

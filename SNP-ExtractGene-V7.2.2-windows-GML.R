@@ -1,4 +1,4 @@
-#设定最低阈值为3
+
 #仅用于处理TESSAL软件生成的GWAS结果文件
 #仅适用于提取 花生(Arachis hypogaea) 一、二代测序的基因数据
 #输出文件包括：单表型结果文件(包含snpID，chr，pos，p，alpha)，表型-染色体-显著性位点-基因文件，表型的曼哈顿图，表型的QQ图
@@ -16,7 +16,7 @@ library(CMplot)
 #输入变量
 #####
 # 提示用户输入文件的完整路径
-file_path <- "G:/学术/研究项目/花生荚果籽仁耐低钙相关基因定位研究/GWAS/结果/GP/GWAS结果/GP-3/MLM/CaGP-MLM5.txt"
+file_path <- "G:/Zy/GWAS/GP-3/GML_test/CaGP-GML1.txt"
 
 # 读取用户输入的文件路径中的数据
 data <- fread(file_path, header = FALSE)
@@ -37,8 +37,7 @@ gff_gnm = c("G:/学术/资源库/PeanutBaseData/GFF3/gnm1.ann1.CCJH/gnm1.ann1.CC
 
 hapmap = fread("G:/学术/资源库/自然群体/1781835-SNP/all.snp.1781835.W272.hmp.txt" , header = T)
 
-
-#程序
+x_threshold = 0.001
 #####
 #函数 FilePath 创建文件夹
 FilePath = function(){
@@ -86,39 +85,10 @@ GWAS_ExtractGenes = function(version){
     print(Yann)
     #构建输出文件
     #phenotype_out 输出文件 包含R方 1-20全部
-    phenotype_out=phenotype[,c(2,3,4,7,15)]
+    phenotype_out=phenotype[,c(2,3,4,6,7)]
     fwrite(phenotype_out,file=paste0(traitname[traitnum],".csv"), sep = ",")
     grayzhens = paste0(traitname[traitnum],".csv has been completed.")
     print(grayzhens)
-    
-    #计算下层阈值"x_threshold"
-    # 1. 提取 p 列
-    p_values <- as.numeric(phenotype_out$p)
-    
-    # 2. 计算 -log10
-    neg_log10_values <- -log10(p_values)
-    
-    # 3. 降序排序
-    sorted_values <- sort(neg_log10_values, decreasing = TRUE)
-    
-    # 4. 提取第1000行的值
-    result <- sorted_values[1000]
-
-    y_threshold = 2.806096e-8
-    
-    # 判断 result 的值
-    if (result <= 3) {
-      x_threshold = 1e-3
-    } else {
-      # 将 result 的值变成负值
-      negative_result <- -result
-      # 计算以10为底的指数
-      exponential_result <- 10^negative_result
-      #x_threshold的值
-      x_threshold <- exponential_result
-    }
-    print(x_threshold)
-
     #CMplot输入文件
     trait_chr = phenotype_out
     trait_chr$p = as.numeric(trait_chr$p)
@@ -142,10 +112,11 @@ GWAS_ExtractGenes = function(version){
       alpha = format(alpha, scientific = FALSE)
       alpha = as.numeric(alpha)
       chr = cbind(chr, alpha)
-      #只提取(5,12)
-      chr = subset(chr, alpha >= (-log10(x_threshold)) & alpha <= 12)
+      #只提取(x,12)区间内的值
+      chr = subset(chr, alpha >= -log10(x_threshold) & alpha <= 12)
       chr$Pos=as.numeric(chr$Pos)
-      
+      chr = na.omit(chr)
+
       #构建gff文件
       if (chrnum < 10) {
         Yannnn = paste("arahy.Tifrunner.gnm",version,".Arahy.0", chrnum, sep = "")
@@ -179,13 +150,35 @@ GWAS_ExtractGenes = function(version){
       if (nrow(chr) != 0) {#有显著性位点则输出提示
         grayzhens = paste0(trait_name,"'s ","highly significant loci on " ,"Chr ",chrnum," have been extracted.")
         print(grayzhens)
-        grayzhens = paste0(trait_name," chr process ",chrnum," / 20")
+        grayzhens = paste0(trait_name," chr process ",chrnum," /20")
         print(grayzhens)
         greyzhens = greyzhens + 1
         chr_snp = chr
+        fwrite(chr_snp,"chr_snp.csv")
         snpcount = nrow(chr_snp) 
         
         filename = paste0(trait_name,"-Chr",chrnum)
+        
+        ##单染色体绘图##
+        CMplot(dataCM, 
+               plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
+               LOG10=TRUE, 
+               ylim=c(0,12),#这里限制y轴上限
+               threshold=c(x_threshold,2.806096e-8),#设置标准线 x 和 8
+               threshold.lty=c(1,2),
+               threshold.lwd=c(1,1), 
+               threshold.col=c("black","grey"), 
+               amplify=F,
+               bin.size=1e6,
+               chr.den.col=c("darkgreen", "yellow","red"),
+               signal.col=c("red","green"),
+               signal.cex=c(1,1),
+               signal.pch=c(19,19),
+               file="jpg",#输出图片的格式
+               file.name=filename,
+               dpi=2000,#输出图片的大小
+               file.output=TRUE,
+               verbose=TRUE)
         
         snpnum = 1
         #构建输出的三列基因
@@ -217,152 +210,6 @@ GWAS_ExtractGenes = function(version){
         genetic_typing_out = data.frame(matrix(nrow = snpcount, ncol = 282))
         gtitle = colnames(hapmap)
         colnames(genetic_typing_out) = gtitle
-        
-        for (snpnum in 1:snpcount) {
-          
-          gffnum = 1
-          for (gffnum in 1:gffcount) {
-            if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum]) {
-              #在最前端 只有Post_gene
-              
-              Pre_gene[snpnum] = ""
-              Pre_note[snpnum] = ""
-              Pre_count[snpnum] = ""
-              
-              In_gene[snpnum] = ""
-              In_note[snpnum] = ""
-              
-              Post_gene[snpnum] = chr_gff$GeneName[gffnum]
-              Post_note[snpnum] = chr_gff$GeneNote[gffnum]
-              
-              ChaZhi = chr_gff$startpos[gffnum+1] - chr_snp$Pos[snpnum]
-              Post_count[snpnum] = ChaZhi
-              
-              if (ChaZhi >= 0 & ChaZhi <= 2000) {
-                promoter[snpnum] = "In the promoter region"
-                }else{
-                  promoter[snpnum] = "Not in the promoter region"
-                  }  
-              
- 
-              SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
-              
-              break
-            }else{
-              if (chr_snp$Pos[snpnum] <= chr_gff$endpos[gffnum]) {
-                #基因内
-                
-                Pre_gene[snpnum] = ""
-                Pre_note[snpnum] = ""
-                Pre_count[snpnum] = ""
-                
-                In_gene[snpnum] = chr_gff$GeneName[gffnum]
-                In_note[snpnum] = chr_gff$GeneNote[gffnum]
-                
-                geneexon = gffexon[grepl(chr_gff$GeneName[gffnum],gffexon$message),]
-                geneexoncount = nrow(geneexon)
-                exonnum = 1
-                
-                for (e in 1:geneexoncount) {
-                  if (chr_snp$Pos[snpnum] >= geneexon$startpos[exonnum] & chr_snp$Pos[snpnum] <= geneexon$endpos[exonnum]) {
-                    grayzhens = paste0(chr_gff$GeneName[gffnum],"的外显子中有SNP")
-                    print(grayzhens)
-                    exon = 1
-                  }else{
-                    exon = 0
-                    exonnum = exonnum + 1
-                  }
-                }
-                
-                if (exon == 1) {
-                  In_exon[snpnum] = "Exon"
-                }else{
-                  In_exon[snpnum] = "Intron"
-                }
-                
-                exon = 0
-
-                
-                Post_gene[snpnum] = ""
-                Post_note[snpnum] = ""
-                Post_count[snpnum] = ""
-                
-                SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
-                
-                break
-              }else{
-                if (gffnum != gffcount) {
-                  if (chr_snp$Pos[snpnum] < chr_gff$startpos[gffnum+1]) {#1
-                    #基因间
-                    
-                    Pre_gene[snpnum] = chr_gff$GeneName[gffnum]
-                    Pre_note[snpnum] = chr_gff$GeneNote[gffnum]
-                    Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
-                    
-                    In_gene[snpnum] = ""
-                    In_note[snpnum] = ""
-                    
-                    
-                    Post_gene[snpnum] = chr_gff$GeneName[gffnum+1]
-                    Post_note[snpnum] = chr_gff$GeneNote[gffnum+1]
-                    
-                    ChaZhi = chr_gff$startpos[gffnum+1] - chr_snp$Pos[snpnum]
-                    Post_count[snpnum] = ChaZhi
-                    
-                    if (ChaZhi >= 0 & ChaZhi <= 2000) {
-                      promoter[snpnum] = "In the promoter region"
-                    }else{
-                      promoter[snpnum] = "Not in the promoter region"
-                    }
-                    
-                    SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
-                    
-                    break
-                  }else{#1
-                    gffnum = gffnum + 1
-                  }
-                }else{
-                  #在最后端 只有Pre_gene
-                  
-                  Pre_gene[snpnum] = chr_gff$GeneName[gffnum]
-                  Pre_note[snpnum] = chr_gff$GeneNote[gffnum]
-                  Pre_count[snpnum] =  chr_snp$Pos[snpnum] - chr_gff$startpos[gffnum]
-                  
-                  In_gene[snpnum] = ""
-                  In_note[snpnum] = ""
-                  
-                  Post_gene[snpnum] = ""
-                  Post_note[snpnum] = ""
-                  Post_count[snpnum] = ""
-                  
-                  SNPID[snpnum] = paste0(trait_name,"-Chr",chrnum,"-",chr_snp$Pos[snpnum])
-                  
-                  break
-                }
-              }
-            }
-          }
-          Yann3 = paste(trait_name," Chr",chrnum," SNP process ",snpnum ,"/",snpcount , sep = "")
-          print(Yann3)
-          
-          #基因分型
-          Gray = paste0("S",chrnum,"_",chr_snp$Pos[snpnum])
-          lengthhapmap = nrow(hapmap)
-          genetic_typing = hapmap[grepl(Gray,hapmap$`rs#`),]
-          hapmapnum = 1
-          colhapmap = ncol(hapmap)
-          for (x in 1:lengthhapmap) {
-            if (Gray == hapmap$`rs#`[hapmapnum]) {
-              genetic_typing = hapmap[hapmapnum,1:colhapmap]
-              break
-            }else{
-              hapmapnum = hapmapnum + 1
-            }
-          }
-          
-          genetic_typing_out[snpnum,1:colhapmap] = genetic_typing
-          
-        }
         
         #文件
         gene = data.frame(matrix(nrow = snpcount, ncol = 17))
@@ -412,7 +259,10 @@ GWAS_ExtractGenes = function(version){
         fwrite(gene, file = paste0(grayzhens, "_SNP_gene.csv"), sep = ",")
         Yann5 = paste(grayzhens , "_SNP_gene.csv has been completed. Summary ",snpcount , sep = "")
         print(Yann5)
-
+        
+        
+        
+        
         chrnum = chrnum + 1
       }else{
         grayzhens = paste0(trait_name,"_Chr",chrnum," has no significant loci and has been skipped. ",chrnum,"/20")
@@ -431,7 +281,7 @@ GWAS_ExtractGenes = function(version){
              plot.type=c("m","q"),#同时输出曼哈顿图和QQ图
              LOG10=TRUE, 
              ylim=c(0,12),#这里限制y轴上限
-             threshold=c(x_threshold,y_threshold),#设置标准线 6 和 8
+             threshold=c(x_threshold,2.806096e-8),#设置标准线 x 和 8
              threshold.lty=c(1,2),
              threshold.lwd=c(1,1), 
              threshold.col=c("black","grey"), 
